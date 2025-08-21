@@ -1,0 +1,268 @@
+{
+  "name": "Cerebras-Enhanced Cerberus MCP Tools Integration",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cerebras-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-1",
+      "name": "Cerebras Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "cerebras-mcp-tools"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Enhanced Cerberus Request Parser with Cerebras Integration\nconst requestBody = $input.first().json.body || $input.first().json;\n\n// Extract tool information\nconst toolName = requestBody.tool_name || requestBody.action;\nconst toolArgs = requestBody.arguments || requestBody.params || {};\nconst sessionId = requestBody.session_id || 'default';\nconst userId = requestBody.user_id || 'anonymous';\nconst useCerebras = requestBody.use_cerebras || toolArgs.use_ai || false;\n\n// Enhanced tool mapping with Cerebras integration\nconst toolMapping = {\n  // N8N tools\n  'search_workflows': 'search_nodes',\n  'create_workflow': 'create_workflow',\n  'update_workflow': 'update_workflow', \n  'validate_workflow': 'validate_workflow',\n  'optimize_workflow': 'cerebras_optimize_workflow',\n  \n  // PythonAnywhere tools\n  'list_files': 'list_files',\n  'read_file': 'read_file',\n  'write_file': 'write_file',\n  'deploy_webapp': 'create_webapp',\n  'reload_webapp': 'reload_webapp',\n  'analyze_code': 'cerebras_analyze_code',\n  \n  // Render tools\n  'list_services': 'list_services',\n  'deploy_service': 'deploy_service',\n  'get_service_info': 'get_service',\n  'optimize_deployment': 'cerebras_optimize_deployment',\n  \n  // Browser automation\n  'browse_web': 'navigate_to',\n  'extract_web_data': 'extract_data',\n  'web_search': 'search_web',\n  'take_screenshot': 'take_screenshot',\n  'intelligent_browse': 'cerebras_intelligent_browse',\n  \n  // GPU processing\n  'process_data': 'gpu_data_processing',\n  'run_inference': 'ai_inference',\n  'batch_process': 'batch_processing',\n  'cerebras_inference': 'cerebras_inference'\n};\n\nconst mcpToolName = toolMapping[toolName] || toolName;\nconst isCerebrasTask = toolName.includes('cerebras') || useCerebras;\n\n// Prepare MCP request payload\nconst mcpRequest = {\n  jsonrpc: '2.0',\n  id: `cerebras-${sessionId}-${Date.now()}`,\n  method: 'tools/call',\n  params: {\n    name: mcpToolName,\n    arguments: {\n      ...toolArgs,\n      use_cerebras: isCerebrasTask,\n      cerebras_model: 'qwen-3-235b-a22b-instruct-2507',\n      cerebras_temperature: 1.22,\n      cerebras_top_p: 0.8\n    }\n  }\n};\n\n// Enhanced metadata\nconst metadata = {\n  originalTool: toolName,\n  mcpTool: mcpToolName,\n  sessionId: sessionId,\n  userId: userId,\n  timestamp: new Date().toISOString(),\n  requestId: mcpRequest.id,\n  useCerebras: isCerebrasTask,\n  cerebrasConfig: {\n    model: 'qwen-3-235b-a22b-instruct-2507',\n    temperature: 1.22,\n    top_p: 0.8,\n    max_tokens: 20000\n  }\n};\n\nreturn {\n  mcpRequest,\n  metadata,\n  originalRequest: requestBody\n};"
+      },
+      "id": "parser-1",
+      "name": "Enhanced Parser with Cerebras",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cerebras-check",
+              "leftValue": "={{ $json.metadata.useCerebras }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "decision-1",
+      "name": "Route to Cerebras?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Cerebras AI Enhancement\nconst input = $input.first().json;\nconst metadata = input.metadata;\nconst mcpRequest = input.mcpRequest;\n\n// Cerebras API configuration\nconst cerebrasConfig = {\n  apiKey: 'csk-hx394vyncc69nr3y8ypkjnpvhdfvm2ppejkvx84mw9hpk8k6',\n  model: metadata.cerebrasConfig.model,\n  temperature: metadata.cerebrasConfig.temperature,\n  top_p: metadata.cerebrasConfig.top_p,\n  max_tokens: metadata.cerebrasConfig.max_tokens\n};\n\n// Create system prompt based on tool type\nfunction getSystemPrompt(toolName, args) {\n  switch (toolName) {\n    case 'cerebras_optimize_workflow':\n      return `You are an expert N8N workflow optimizer. Analyze the provided workflow and suggest optimizations for performance, reliability, and maintainability. Return JSON with optimizations array.`;\n    \n    case 'cerebras_analyze_code':\n      return `You are a code analysis expert. Analyze the provided code for bugs, security issues, performance problems, and best practices. Return JSON with detailed analysis.`;\n    \n    case 'cerebras_optimize_deployment':\n      return `You are a deployment optimization expert. Analyze the service configuration and suggest improvements for scalability, cost-efficiency, and reliability. Return JSON with recommendations.`;\n    \n    case 'cerebras_intelligent_browse':\n      return `You are a web automation expert. Plan and execute intelligent web browsing tasks with step-by-step instructions. Return JSON with action plan.`;\n    \n    case 'cerebras_inference':\n      return `You are an AI inference specialist. Process the input data and provide intelligent analysis or completion. Return JSON with results and confidence scores.`;\n    \n    default:\n      return `You are an AI assistant helping with ${toolName}. Analyze the input and provide intelligent assistance. Return JSON format response.`;\n  }\n}\n\n// Prepare Cerebras request\nconst systemPrompt = getSystemPrompt(metadata.mcpTool, mcpRequest.params.arguments);\nconst userPrompt = `Tool: ${metadata.mcpTool}\\nArguments: ${JSON.stringify(mcpRequest.params.arguments, null, 2)}\\n\\nPlease process this request and provide enhanced results.`;\n\nconst cerebrasRequest = {\n  messages: [\n    {\n      role: 'system',\n      content: systemPrompt\n    },\n    {\n      role: 'user', \n      content: userPrompt\n    }\n  ],\n  model: cerebrasConfig.model,\n  stream: false,\n  max_completion_tokens: cerebrasConfig.max_tokens,\n  temperature: cerebrasConfig.temperature,\n  top_p: cerebrasConfig.top_p,\n  response_format: { type: 'json_object' }\n};\n\nreturn {\n  cerebrasRequest,\n  cerebrasConfig,\n  originalData: input\n};"
+      },
+      "id": "cerebras-prep",
+      "name": "Prepare Cerebras Request", 
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "url": "https://api.cerebras.ai/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer csk-hx394vyncc69nr3y8ypkjnpvhdfvm2ppejkvx84mw9hpk8k6"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonBody": "={{ $json.cerebrasRequest }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "cerebras-call",
+      "name": "Call Cerebras API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 200]
+    },
+    {
+      "parameters": {
+        "url": "https://mcp-server-always-on.onrender.com/mcp",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "User-Agent",
+              "value": "N8N-Cerberus-Enhanced/1.0"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonBody": "={{ $json.mcpRequest }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "mcp-call",
+      "name": "Call MCP Server",
+      "type": "n8n-nodes-base.httpRequest", 
+      "typeVersion": 4.2,
+      "position": [900, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process Enhanced Response\nconst cerebrasPath = $('Call Cerebras API').first();\nconst mcpPath = $('Call MCP Server').first();\nconst originalData = $('Prepare Cerebras Request').first()?.json?.originalData || $('Enhanced Parser with Cerebras').first().json;\n\nlet response = {\n  success: true,\n  tool_name: originalData.metadata.originalTool,\n  session_id: originalData.metadata.sessionId,\n  user_id: originalData.metadata.userId,\n  request_id: originalData.metadata.requestId,\n  timestamp: new Date().toISOString(),\n  enhanced_by_cerebras: !!cerebrasPath\n};\n\nif (cerebrasPath && cerebrasPath.json) {\n  // Process Cerebras-enhanced response\n  const cerebrasResponse = cerebrasPath.json;\n  const aiContent = cerebrasResponse.choices?.[0]?.message?.content;\n  \n  try {\n    const aiResult = JSON.parse(aiContent || '{}');\n    response.result = {\n      type: 'ai_enhanced',\n      content: aiResult,\n      model_used: originalData.metadata.cerebrasConfig.model,\n      ai_metadata: {\n        usage: cerebrasResponse.usage,\n        model: cerebrasResponse.model,\n        finish_reason: cerebrasResponse.choices?.[0]?.finish_reason\n      }\n    };\n  } catch (e) {\n    response.result = {\n      type: 'ai_enhanced',\n      content: aiContent,\n      raw_response: cerebrasResponse\n    };\n  }\n} else if (mcpPath && mcpPath.json) {\n  // Process standard MCP response\n  const mcpResponse = mcpPath.json;\n  if (mcpResponse.result && mcpResponse.result.content) {\n    const textContent = mcpResponse.result.content\n      .filter(item => item.type === 'text')\n      .map(item => item.text)\n      .join('\\n');\n    \n    response.result = {\n      type: 'mcp_standard',\n      content: textContent,\n      raw_response: mcpResponse.result\n    };\n  }\n} else {\n  response.success = false;\n  response.error = {\n    code: 'NO_RESPONSE',\n    message: 'No valid response from either Cerebras or MCP server'\n  };\n}\n\n// Add performance metrics\nresponse.metrics = {\n  cerebras_enhanced: !!cerebrasPath,\n  mcp_fallback: !!mcpPath && !cerebrasPath,\n  tool_category: getToolCategory(originalData.metadata.mcpTool),\n  processing_time: Date.now() - new Date(originalData.metadata.timestamp).getTime()\n};\n\nfunction getToolCategory(toolName) {\n  if (toolName.includes('cerebras')) return 'ai_enhanced';\n  if (['search_nodes', 'create_workflow'].includes(toolName)) return 'n8n';\n  if (['list_files', 'read_file'].includes(toolName)) return 'pythonanywhere';\n  if (['list_services', 'deploy_service'].includes(toolName)) return 'render';\n  if (['navigate_to', 'extract_data'].includes(toolName)) return 'browser';\n  if (['gpu_data_processing', 'ai_inference'].includes(toolName)) return 'gpu';\n  return 'unknown';\n}\n\nreturn response;"
+      },
+      "id": "response-processor",
+      "name": "Process Enhanced Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Access-Control-Allow-Origin", 
+                "value": "*"
+              },
+              {
+                "name": "X-Powered-By",
+                "value": "N8N-Cerberus-Cerebras-MCP"
+              }
+            ]
+          }
+        }
+      },
+      "id": "final-response",
+      "name": "Send Enhanced Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1560, 300]
+    }
+  ],
+  "connections": {
+    "Cerebras Webhook": {
+      "main": [
+        [
+          {
+            "node": "Enhanced Parser with Cerebras",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enhanced Parser with Cerebras": {
+      "main": [
+        [
+          {
+            "node": "Route to Cerebras?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route to Cerebras?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Cerebras Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call MCP Server",
+            "type": "main", 
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Cerebras Request": {
+      "main": [
+        [
+          {
+            "node": "Call Cerebras API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Cerebras API": {
+      "main": [
+        [
+          {
+            "node": "Process Enhanced Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call MCP Server": {
+      "main": [
+        [
+          {
+            "node": "Process Enhanced Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Enhanced Response": {
+      "main": [
+        [
+          {
+            "node": "Send Enhanced Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "id": "cerebras",
+      "name": "Cerebras"
+    },
+    {
+      "id": "mcp",
+      "name": "MCP"
+    },
+    {
+      "id": "ai-enhanced",
+      "name": "AI Enhanced"
+    }
+  ]
+}

@@ -11,7 +11,7 @@ import os
 import sys
 from datetime import datetime
 
-def run_command(cmd, timeout=30):
+def run_command(cmd, timeout=120):
     """Run a command with timeout and return result"""
     try:
         result = subprocess.run(
@@ -82,6 +82,7 @@ def test_pythonanywhere_mcp():
     
     # Test 1: Check if pythonanywhere-mcp-server can be invoked
     print("  📋 Testing pythonanywhere-mcp-server availability...")
+    os.environ["API_TOKEN"] = "2cd76d32553b4b109b8608fef7b06499ad5a7142"
     result = run_command("uvx pythonanywhere-mcp-server --help", timeout=20)
     
     if result["success"]:
@@ -208,6 +209,7 @@ def test_modal_gpu_functions():
     os.environ["MODAL_TOKEN_SECRET"] = "as-UN7iCC3G8Q39b2S1rBXWtx"
     
     result = run_command("modal app list", timeout=15)
+
     
     if result["success"] and "mcp-gpu-functions" in result["stdout"]:
         print("  ✅ Modal authentication working")

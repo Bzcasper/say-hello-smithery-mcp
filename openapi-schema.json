@@ -165,15 +165,26 @@
               "deploy_service", "get_deployments",
               "navigate_to", "click_element", "fill_form", "extract_data", 
               "take_screenshot", "search_web", "complete_task",
-              "gpu_data_processing", "ai_inference", "batch_processing"
+              "gpu_data_processing", "ai_inference", "batch_processing",
+              "say_hello"
             ]
           },
           "arguments": {
-            "type": "object",
-            "additionalProperties": true
+            "oneOf": [
+              {"$ref": "#/components/schemas/SayHelloParams"}
+            ]
           }
         },
         "required": ["name", "arguments"]
+      },
+      "SayHelloParams": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": ["name"]
       },
       "MCPResponse": {
         "type": "object",
@@ -219,15 +230,9 @@
             "type": "string"
           },
           "inputSchema": {
-            "type": "object",
-            "properties": {
-              "type": {"type": "string"},
-              "properties": {"type": "object"},
-              "required": {
-                "type": "array",
-                "items": {"type": "string"}
-              }
-            }
+            "oneOf": [
+              {"$ref": "#/components/schemas/SayHelloParams"}
+            ]
           }
         },
         "required": ["name", "description", "inputSchema"]
