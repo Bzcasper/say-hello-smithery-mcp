@@ -35,11 +35,19 @@
         "MCP_LLM_GOOGLE_API_KEY": "QUl6YVN5QVVPRHpIMnNKOTFPQ1E3SEJHUldkRk9jajNxR2xtZXhv",
         "MCP_LLM_PROVIDER": "google",
         "MCP_LLM_MODEL_NAME": "gemini-2.5-flash-preview-04-17",
+        "MCP_LLM_TEMPERATURE": "0.3",
         "MCP_BROWSER_HEADLESS": "true",
-        "MCP_AGENT_TOOL_USE_VISION": "true",
         "MCP_BROWSER_WINDOW_WIDTH": "1440",
         "MCP_BROWSER_WINDOW_HEIGHT": "1080",
-        "MCP_SERVER_LOGGING_LEVEL": "ERROR"
+        "MCP_AGENT_TOOL_USE_VISION": "true",
+        "MCP_AGENT_TOOL_MAX_STEPS": "100",
+        "MCP_AGENT_TOOL_MAX_ACTIONS_PER_STEP": "5",
+        "MCP_RESEARCH_TOOL_MAX_PARALLEL_BROWSERS": "3",
+        "MCP_RESEARCH_TOOL_SAVE_DIR": "/tmp/browser_research",
+        "MCP_AGENT_TOOL_HISTORY_PATH": "/tmp/browser_history",
+        "MCP_PATHS_DOWNLOADS": "/tmp/browser_downloads",
+        "MCP_SERVER_LOGGING_LEVEL": "ERROR",
+        "MCP_SERVER_ANONYMIZED_TELEMETRY": "false"
       }
     }
   }

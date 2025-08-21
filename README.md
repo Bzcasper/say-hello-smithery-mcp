@@ -27,15 +27,36 @@ A TypeScript project configured with comprehensive Model Context Protocol (MCP) 
    npm install
    ```
 
-2. **Development**
+2. **Setup MCP Servers**
+   ```bash
+   ./scripts/setup-mcp.sh
+   ```
+
+3. **Validate MCP Configuration**
+   ```bash
+   node scripts/validate-mcp.js
+   ```
+
+4. **Development**
    ```bash
    npm run dev
    ```
 
-3. **Build**
+5. **Build**
    ```bash
    npm run build
    ```
+
+## Quick MCP Setup
+
+For immediate MCP server setup with Claude Code:
+```bash
+# Run the automated setup
+chmod +x scripts/setup-mcp.sh && ./scripts/setup-mcp.sh
+
+# Validate configuration
+node scripts/validate-mcp.js
+```
 
 ## MCP Usage
 
