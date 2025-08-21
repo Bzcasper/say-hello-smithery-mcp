@@ -1,0 +1,70 @@
+services:
+  - type: web
+    name: mcp-server-always-on
+    runtime: node
+    plan: starter
+    region: oregon
+    buildCommand: npm install
+    startCommand: npm run start:production
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 8181
+      - key: MCP_MODE
+        value: http
+      - key: LOG_LEVEL
+        value: error
+      - key: DISABLE_CONSOLE_OUTPUT
+        value: "true"
+      - key: N8N_API_URL
+        value: https://n8n-render-2sul.onrender.com/api/v1
+      - key: N8N_API_KEY
+        fromDatabase:
+          name: mcp-secrets
+          property: n8n_api_key
+      - key: N8N_WEBHOOK_USERNAME
+        value: bzcasper
+      - key: N8N_WEBHOOK_PASSWORD
+        value: "80408040"
+      - key: PYTHONANYWHERE_API_TOKEN
+        fromDatabase:
+          name: mcp-secrets  
+          property: pythonanywhere_token
+      - key: PYTHONANYWHERE_LOGNAME
+        value: bzcasper
+      - key: RENDER_API_TOKEN
+        fromDatabase:
+          name: mcp-secrets
+          property: render_token
+      - key: GOOGLE_API_KEY
+        fromDatabase:
+          name: mcp-secrets
+          property: google_api_key
+      - key: MODAL_TOKEN_ID
+        fromDatabase:
+          name: mcp-secrets
+          property: modal_token_id
+      - key: MODAL_TOKEN_SECRET
+        fromDatabase:
+          name: mcp-secrets
+          property: modal_token_secret
+      - key: MCP_BROWSER_HEADLESS
+        value: "true"
+      - key: MCP_BROWSER_WINDOW_WIDTH
+        value: "1440"
+      - key: MCP_BROWSER_WINDOW_HEIGHT
+        value: "1080"
+      - key: MCP_AGENT_TOOL_USE_VISION
+        value: "true"
+      - key: MCP_RESEARCH_TOOL_SAVE_DIR
+        value: "/tmp/browser_research"
+      - key: MCP_MODAL_INTEGRATION
+        value: "true"
+      - key: MCP_MODAL_APP_NAME
+        value: mcp-gpu-functions-simple
+
+databases:
+  - name: mcp-secrets
+    databaseName: mcp_secrets
+    plan: starter
