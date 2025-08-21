@@ -24,7 +24,7 @@ async function testSmitheryMCP() {
       tools: [
         {
           "type": "mcp",
-          "server_label": "Smithery MCP Server",
+          "server_label": "smithery_mcp_server",
           "server_url": "https://17b5628c.ngrok.smithery.ai/mcp",
           "allowed_tools": [], // Allow all tools
           "require_approval": "never" // Auto-approve for testing
@@ -87,7 +87,7 @@ async function testMCPTools() {
         tools: [
           {
             "type": "mcp",
-            "server_label": "Smithery MCP Server",
+            "server_label": "smithery_mcp_server",
             "server_url": "https://17b5628c.ngrok.smithery.ai/mcp",
             "allowed_tools": [tool.name],
             "require_approval": "never"
