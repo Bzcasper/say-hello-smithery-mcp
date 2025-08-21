@@ -47,7 +47,12 @@
         "MCP_AGENT_TOOL_HISTORY_PATH": "/tmp/browser_history",
         "MCP_PATHS_DOWNLOADS": "/tmp/browser_downloads",
         "MCP_SERVER_LOGGING_LEVEL": "ERROR",
-        "MCP_SERVER_ANONYMIZED_TELEMETRY": "false"
+        "MCP_SERVER_ANONYMIZED_TELEMETRY": "false",
+        "MCP_MODAL_INTEGRATION": "true",
+        "MCP_MODAL_APP_NAME": "mcp-gpu-functions",
+        "MCP_MODAL_TOKEN_ID": "YWstc1g3dnFRSExDRVNCaGdKQkxXQ3pxcg==",
+        "MCP_MODAL_TOKEN_SECRET": "YXMtVU43aUNDM0c4UTM5YjJTMXJCWFd0eA==",
+        "MCP_MODAL_FALLBACK": "local"
       }
     }
   }

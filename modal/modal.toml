@@ -1,0 +1,10 @@
+[ai-tool-pool]
+token_id = "ak-sX7vqQHLCESBhgJBLWCzqr"
+token_secret = "as-UN7iCC3G8Q39b2S1rBXWtx"
+active = true
+loglevel = "INFO"
+log_pattern = "[modal-pythonanywhere] %(asctime)s %(message)s"
+logs_timeout = 15
+force_build = false
+ignore_cache = false
+traceback = true
