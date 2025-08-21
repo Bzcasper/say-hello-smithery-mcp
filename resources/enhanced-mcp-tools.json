@@ -1,0 +1,397 @@
+{
+  "mcp_servers": {
+    "n8n-mcp": {
+      "description": "Complete n8n workflow automation platform integration",
+      "provider": "n8n.io",
+      "version": "latest",
+      "capabilities": [
+        "Node discovery and documentation",
+        "Workflow validation and configuration",
+        "API-based workflow management",
+        "Template and example generation",
+        "Expression syntax validation",
+        "Real-time workflow monitoring",
+        "Webhook automation",
+        "Database integration"
+      ],
+      "tools": [
+        {
+          "name": "search_nodes",
+          "description": "Search for n8n nodes by name, category, or functionality",
+          "parameters": ["query", "category", "type"],
+          "use_cases": ["Node discovery", "Feature exploration", "Integration planning"]
+        },
+        {
+          "name": "get_node_info",
+          "description": "Get detailed information about specific n8n nodes",
+          "parameters": ["node_name", "version"],
+          "use_cases": ["Configuration guidance", "Parameter documentation", "Example workflows"]
+        },
+        {
+          "name": "validate_node_config",
+          "description": "Validate n8n node configurations before deployment",
+          "parameters": ["node_config", "validation_level"],
+          "use_cases": ["Pre-deployment validation", "Error prevention", "Best practice compliance"]
+        },
+        {
+          "name": "create_workflow",
+          "description": "Create complete n8n workflows programmatically",
+          "parameters": ["workflow_definition", "nodes", "connections"],
+          "use_cases": ["Automated workflow creation", "Template deployment", "Batch workflow setup"]
+        },
+        {
+          "name": "update_workflow",
+          "description": "Update existing workflows with new configurations",
+          "parameters": ["workflow_id", "updates", "diff_mode"],
+          "use_cases": ["Workflow maintenance", "Feature updates", "Configuration changes"]
+        },
+        {
+          "name": "validate_workflow",
+          "description": "Comprehensive workflow validation and testing",
+          "parameters": ["workflow", "test_data", "validation_profile"],
+          "use_cases": ["Pre-deployment testing", "Quality assurance", "Workflow optimization"]
+        }
+      ],
+      "integration_patterns": [
+        "Webhook-triggered automation",
+        "Scheduled data processing",
+        "API orchestration workflows",
+        "Event-driven architectures",
+        "Data transformation pipelines"
+      ]
+    },
+    "pythonanywhere": {
+      "description": "PythonAnywhere hosting platform management and development",
+      "provider": "PythonAnywhere",
+      "version": "latest",
+      "capabilities": [
+        "File system operations",
+        "Web application management",
+        "Console access and execution",
+        "Database management",
+        "Task scheduling",
+        "Development environment setup",
+        "Package management",
+        "Static file serving"
+      ],
+      "tools": [
+        {
+          "name": "list_files",
+          "description": "List and explore file system structure",
+          "parameters": ["path", "recursive", "filter"],
+          "use_cases": ["Project exploration", "File management", "Backup operations"]
+        },
+        {
+          "name": "upload_file",
+          "description": "Upload files and directories to PythonAnywhere",
+          "parameters": ["local_path", "remote_path", "overwrite"],
+          "use_cases": ["Code deployment", "Asset upload", "Configuration deployment"]
+        },
+        {
+          "name": "create_webapp",
+          "description": "Create and configure web applications",
+          "parameters": ["domain", "python_version", "framework"],
+          "use_cases": ["Application deployment", "Environment setup", "Multi-app hosting"]
+        },
+        {
+          "name": "run_console_command",
+          "description": "Execute commands in PythonAnywhere console",
+          "parameters": ["command", "working_directory", "environment"],
+          "use_cases": ["Package installation", "Database operations", "Script execution"]
+        },
+        {
+          "name": "manage_databases",
+          "description": "Create and manage MySQL/PostgreSQL databases",
+          "parameters": ["action", "database_name", "credentials"],
+          "use_cases": ["Database setup", "Data import/export", "Backup management"]
+        },
+        {
+          "name": "schedule_task",
+          "description": "Create and manage scheduled tasks",
+          "parameters": ["schedule", "command", "description"],
+          "use_cases": ["Automated backups", "Data processing", "Maintenance tasks"]
+        }
+      ],
+      "integration_patterns": [
+        "Development-to-production pipelines",
+        "Automated testing environments",
+        "Data processing platforms",
+        "Prototyping and experimentation",
+        "Educational and learning platforms"
+      ]
+    },
+    "render": {
+      "description": "Render cloud platform deployment and monitoring",
+      "provider": "Render",
+      "version": "latest",
+      "capabilities": [
+        "Service deployment and management",
+        "Environment configuration",
+        "Build and deployment automation",
+        "Custom domain management",
+        "Database provisioning",
+        "Auto-scaling and load balancing",
+        "SSL certificate management",
+        "Performance monitoring"
+      ],
+      "tools": [
+        {
+          "name": "list_services",
+          "description": "List and manage deployed services",
+          "parameters": ["filter", "status", "environment"],
+          "use_cases": ["Service inventory", "Status monitoring", "Resource management"]
+        },
+        {
+          "name": "deploy_service",
+          "description": "Deploy new services or update existing ones",
+          "parameters": ["service_config", "environment", "auto_deploy"],
+          "use_cases": ["Application deployment", "Service updates", "Environment provisioning"]
+        },
+        {
+          "name": "get_logs",
+          "description": "Access service logs and monitoring data",
+          "parameters": ["service_id", "time_range", "log_level"],
+          "use_cases": ["Debugging", "Performance analysis", "Issue investigation"]
+        },
+        {
+          "name": "manage_environment",
+          "description": "Configure environment variables and settings",
+          "parameters": ["service_id", "variables", "secrets"],
+          "use_cases": ["Configuration management", "Secret deployment", "Environment setup"]
+        },
+        {
+          "name": "configure_domains",
+          "description": "Set up custom domains and SSL certificates",
+          "parameters": ["domain", "service_id", "ssl_settings"],
+          "use_cases": ["Domain management", "SSL setup", "Production deployment"]
+        },
+        {
+          "name": "scale_service",
+          "description": "Configure auto-scaling and resource allocation",
+          "parameters": ["service_id", "scaling_rules", "resource_limits"],
+          "use_cases": ["Performance optimization", "Cost management", "Load handling"]
+        }
+      ],
+      "integration_patterns": [
+        "CI/CD deployment pipelines",
+        "Microservices architectures",
+        "Auto-scaling web applications",
+        "Multi-environment deployments",
+        "Global content delivery"
+      ]
+    },
+    "browser-use": {
+      "description": "AI-driven browser automation and web research platform",
+      "provider": "browser-use",
+      "version": "latest",
+      "capabilities": [
+        "Natural language browser control",
+        "Visual understanding and analysis",
+        "Form automation and interaction",
+        "Web scraping and data extraction",
+        "Multi-site research automation",
+        "Screenshot analysis and vision",
+        "Session persistence and state management",
+        "Parallel browser processing"
+      ],
+      "tools": [
+        {
+          "name": "run_browser_agent",
+          "description": "Execute browser automation tasks with natural language instructions",
+          "parameters": ["task", "options", "vision_enabled"],
+          "use_cases": [
+            "Web navigation and interaction",
+            "Form filling and submission",
+            "Data extraction and scraping",
+            "Website testing and validation",
+            "E-commerce automation",
+            "Social media management"
+          ]
+        },
+        {
+          "name": "run_deep_research",
+          "description": "Perform comprehensive multi-step web research with parallel processing",
+          "parameters": ["research_task", "max_parallel_browsers", "save_results"],
+          "use_cases": [
+            "Market research and analysis",
+            "Competitive intelligence",
+            "Academic research compilation",
+            "News monitoring and analysis",
+            "Product research and comparison",
+            "Industry trend analysis"
+          ]
+        }
+      ],
+      "advanced_features": [
+        {
+          "name": "Vision Capabilities",
+          "description": "Screenshot analysis and visual element recognition",
+          "use_cases": ["Visual testing", "Layout validation", "Content verification"]
+        },
+        {
+          "name": "Session Persistence",
+          "description": "Maintain browser state across multiple automation tasks",
+          "use_cases": ["Multi-step workflows", "Authentication persistence", "Shopping cart management"]
+        },
+        {
+          "name": "Parallel Processing",
+          "description": "Execute multiple browser tasks simultaneously",
+          "use_cases": ["Large-scale data collection", "Multi-site comparison", "Performance optimization"]
+        },
+        {
+          "name": "Error Recovery",
+          "description": "Intelligent error handling and retry mechanisms",
+          "use_cases": ["Robust automation", "Network failure handling", "Dynamic content adaptation"]
+        }
+      ],
+      "integration_patterns": [
+        "Automated testing pipelines",
+        "Data collection and analysis",
+        "E-commerce automation",
+        "Content management workflows",
+        "Research and intelligence gathering"
+      ]
+    }
+  },
+  "integration_workflows": [
+    {
+      "name": "Complete Development Lifecycle",
+      "description": "End-to-end development from prototype to production",
+      "steps": [
+        {
+          "phase": "Development",
+          "tool": "pythonanywhere",
+          "actions": ["Create development environment", "Implement features", "Run tests"]
+        },
+        {
+          "phase": "Testing",
+          "tool": "browser-use",
+          "actions": ["Automated UI testing", "User workflow validation", "Performance testing"]
+        },
+        {
+          "phase": "Deployment",
+          "tool": "render",
+          "actions": ["Production deployment", "Environment configuration", "Monitoring setup"]
+        },
+        {
+          "phase": "Automation",
+          "tool": "n8n-mcp",
+          "actions": ["Workflow automation", "Monitoring alerts", "Data synchronization"]
+        }
+      ]
+    },
+    {
+      "name": "E-Commerce Automation Platform",
+      "description": "Comprehensive e-commerce business automation",
+      "components": [
+        {
+          "component": "Product Management",
+          "primary_tool": "browser-use",
+          "secondary_tools": ["pythonanywhere", "n8n-mcp"],
+          "functions": ["Product data extraction", "Competitor monitoring", "Inventory tracking"]
+        },
+        {
+          "component": "Order Processing",
+          "primary_tool": "n8n-mcp",
+          "secondary_tools": ["pythonanywhere", "render"],
+          "functions": ["Order automation", "Payment processing", "Fulfillment workflows"]
+        },
+        {
+          "component": "Customer Support",
+          "primary_tool": "pythonanywhere",
+          "secondary_tools": ["browser-use", "n8n-mcp"],
+          "functions": ["Support ticket management", "Automated responses", "Knowledge base"]
+        },
+        {
+          "component": "Analytics and Reporting",
+          "primary_tool": "render",
+          "secondary_tools": ["browser-use", "n8n-mcp"],
+          "functions": ["Performance dashboards", "Business intelligence", "Automated reporting"]
+        }
+      ]
+    },
+    {
+      "name": "Research and Intelligence Platform",
+      "description": "Automated research and data intelligence system",
+      "workflow": [
+        {
+          "stage": "Data Collection",
+          "tool": "browser-use",
+          "description": "Automated web scraping and research across multiple sources",
+          "outputs": ["Raw data", "Structured information", "Research artifacts"]
+        },
+        {
+          "stage": "Data Processing",
+          "tool": "pythonanywhere",
+          "description": "Data cleaning, analysis, and insight generation",
+          "outputs": ["Cleaned datasets", "Analysis results", "Generated insights"]
+        },
+        {
+          "stage": "Intelligence Distribution",
+          "tool": "render",
+          "description": "Real-time intelligence dashboards and API services",
+          "outputs": ["Interactive dashboards", "API endpoints", "Alert systems"]
+        },
+        {
+          "stage": "Automation and Monitoring",
+          "tool": "n8n-mcp",
+          "description": "Automated research scheduling and quality monitoring",
+          "outputs": ["Scheduled research", "Quality metrics", "Automated alerts"]
+        }
+      ]
+    }
+  ],
+  "best_practices": {
+    "security": [
+      "Use base64 encoded credentials in configurations",
+      "Implement proper authentication and authorization",
+      "Regular security audits and updates",
+      "Secure data transmission and storage",
+      "Access control and permission management"
+    ],
+    "performance": [
+      "Optimize MCP server configurations",
+      "Use caching strategies for frequently accessed data",
+      "Implement proper error handling and retry logic",
+      "Monitor resource usage and performance metrics",
+      "Scale services based on demand"
+    ],
+    "reliability": [
+      "Implement comprehensive error handling",
+      "Set up monitoring and alerting systems",
+      "Regular backups and disaster recovery",
+      "Graceful degradation strategies",
+      "Health checks and service monitoring"
+    ],
+    "maintainability": [
+      "Use consistent naming conventions",
+      "Document configurations and workflows",
+      "Version control all configurations",
+      "Regular updates and maintenance",
+      "Code review and quality assurance"
+    ]
+  },
+  "monitoring_and_observability": {
+    "key_metrics": [
+      "MCP server response times",
+      "Tool execution success rates",
+      "Error rates and failure patterns",
+      "Resource utilization across platforms",
+      "User satisfaction and adoption metrics"
+    ],
+    "alerting_strategies": [
+      "Real-time error notifications",
+      "Performance degradation alerts",
+      "Service availability monitoring",
+      "Capacity and resource alerts",
+      "Security incident notifications"
+    ],
+    "reporting_frameworks": [
+      "Daily operational reports",
+      "Weekly performance summaries",
+      "Monthly usage analytics",
+      "Quarterly business impact reports",
+      "Annual platform assessment"
+    ]
+  }
+}

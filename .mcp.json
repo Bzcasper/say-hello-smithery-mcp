@@ -27,6 +27,20 @@
       "headers": {
         "Authorization": "Bearer cm5kX0JSZEpETXVLaU9lMHBUc0phaDFDbUkxZDhvRlQ="
       }
+    },
+    "browser-use": {
+      "command": "uvx",
+      "args": ["mcp-server-browser-use@latest"],
+      "env": {
+        "MCP_LLM_GOOGLE_API_KEY": "QUl6YVN5QVVPRHpIMnNKOTFPQ1E3SEJHUldkRk9jajNxR2xtZXhv",
+        "MCP_LLM_PROVIDER": "google",
+        "MCP_LLM_MODEL_NAME": "gemini-2.5-flash-preview-04-17",
+        "MCP_BROWSER_HEADLESS": "true",
+        "MCP_AGENT_TOOL_USE_VISION": "true",
+        "MCP_BROWSER_WINDOW_WIDTH": "1440",
+        "MCP_BROWSER_WINDOW_HEIGHT": "1080",
+        "MCP_SERVER_LOGGING_LEVEL": "ERROR"
+      }
     }
   }
 }
