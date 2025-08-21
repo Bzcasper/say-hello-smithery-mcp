@@ -1,0 +1,219 @@
+{
+  "name": "Cerberus MCP Tools Integration",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cerberus-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "f6e1b3d7-8a9c-4e5f-b2d1-9c8e7a6b5d4f",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "cerberus-mcp-tools"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Cerberus Request Parser\n// Parse incoming requests and route to appropriate MCP tools\n\nconst requestBody = $input.first().json.body || $input.first().json;\n\n// Extract tool information from Cerberus request\nconst toolName = requestBody.tool_name || requestBody.action;\nconst toolArgs = requestBody.arguments || requestBody.params || {};\nconst sessionId = requestBody.session_id || 'default';\nconst userId = requestBody.user_id || 'anonymous';\n\n// Map Cerberus tool names to MCP tool names\nconst toolMapping = {\n  // N8N tools\n  'search_workflows': 'search_nodes',\n  'create_workflow': 'create_workflow',\n  'update_workflow': 'update_workflow',\n  'validate_workflow': 'validate_workflow',\n  \n  // PythonAnywhere tools\n  'list_files': 'list_files',\n  'read_file': 'read_file',\n  'write_file': 'write_file',\n  'deploy_webapp': 'create_webapp',\n  'reload_webapp': 'reload_webapp',\n  \n  // Render tools\n  'list_services': 'list_services',\n  'deploy_service': 'deploy_service',\n  'get_service_info': 'get_service',\n  \n  // Browser automation\n  'browse_web': 'navigate_to',\n  'extract_web_data': 'extract_data',\n  'web_search': 'search_web',\n  'take_screenshot': 'take_screenshot',\n  \n  // GPU processing\n  'process_data': 'gpu_data_processing',\n  'run_inference': 'ai_inference',\n  'batch_process': 'batch_processing'\n};\n\nconst mcpToolName = toolMapping[toolName] || toolName;\n\n// Prepare MCP request payload\nconst mcpRequest = {\n  jsonrpc: '2.0',\n  id: `cerberus-${sessionId}-${Date.now()}`,\n  method: 'tools/call',\n  params: {\n    name: mcpToolName,\n    arguments: toolArgs\n  }\n};\n\n// Add metadata for tracking\nconst metadata = {\n  originalTool: toolName,\n  mcpTool: mcpToolName,\n  sessionId: sessionId,\n  userId: userId,\n  timestamp: new Date().toISOString(),\n  requestId: mcpRequest.id\n};\n\nreturn {\n  mcpRequest,\n  metadata,\n  originalRequest: requestBody\n};"
+      },
+      "id": "a1b2c3d4-e5f6-7890-ab12-cd34ef567890",
+      "name": "Parse Cerberus Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://mcp-server-always-on.onrender.com/mcp",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "User-Agent",
+              "value": "N8N-Cerberus/1.0"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": []
+        },
+        "jsonBody": "={{ $json.mcpRequest }}",
+        "options": {
+          "timeout": 30000,
+          "retry": {
+            "enabled": true,
+            "maxTries": 3
+          }
+        }
+      },
+      "id": "b2c3d4e5-f6a7-8901-bc23-de45fa678901",
+      "name": "Call MCP Server",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process MCP Response for Cerberus\n// Format the response from MCP server for Cerberus consumption\n\nconst mcpResponse = $input.first().json;\nconst metadata = $('Parse Cerberus Request').first().json.metadata;\nconst originalRequest = $('Parse Cerberus Request').first().json.originalRequest;\n\nlet cerberusResponse = {\n  success: true,\n  tool_name: metadata.originalTool,\n  session_id: metadata.sessionId,\n  user_id: metadata.userId,\n  request_id: metadata.requestId,\n  timestamp: new Date().toISOString(),\n  execution_time: Date.now() - new Date(metadata.timestamp).getTime()\n};\n\n// Handle successful MCP response\nif (mcpResponse.result && mcpResponse.result.content) {\n  const content = mcpResponse.result.content;\n  \n  // Extract text content from MCP response\n  const textContent = content\n    .filter(item => item.type === 'text')\n    .map(item => item.text)\n    .join('\\n');\n  \n  cerberusResponse.result = {\n    type: 'text',\n    content: textContent,\n    raw_response: mcpResponse.result\n  };\n  \n  // Add tool-specific formatting\n  switch (metadata.mcpTool) {\n    case 'search_nodes':\n    case 'list_services':\n    case 'list_files':\n      cerberusResponse.result.type = 'list';\n      break;\n    case 'take_screenshot':\n      cerberusResponse.result.type = 'image';\n      break;\n    case 'gpu_data_processing':\n    case 'ai_inference':\n      cerberusResponse.result.type = 'data';\n      break;\n  }\n} else if (mcpResponse.error) {\n  // Handle MCP error\n  cerberusResponse.success = false;\n  cerberusResponse.error = {\n    code: mcpResponse.error.code || 'TOOL_ERROR',\n    message: mcpResponse.error.message || 'Tool execution failed',\n    details: mcpResponse.error\n  };\n} else {\n  // Handle unexpected response format\n  cerberusResponse.success = false;\n  cerberusResponse.error = {\n    code: 'INVALID_RESPONSE',\n    message: 'Invalid response format from MCP server',\n    details: mcpResponse\n  };\n}\n\n// Add performance metrics\ncerberusResponse.metrics = {\n  mcp_server_status: 'healthy',\n  response_size: JSON.stringify(mcpResponse).length,\n  tool_category: getToolCategory(metadata.mcpTool)\n};\n\nfunction getToolCategory(toolName) {\n  if (['search_nodes', 'create_workflow', 'update_workflow'].includes(toolName)) {\n    return 'n8n';\n  }\n  if (['list_files', 'read_file', 'write_file'].includes(toolName)) {\n    return 'pythonanywhere';\n  }\n  if (['list_services', 'deploy_service'].includes(toolName)) {\n    return 'render';\n  }\n  if (['navigate_to', 'extract_data', 'search_web'].includes(toolName)) {\n    return 'browser';\n  }\n  if (['gpu_data_processing', 'ai_inference'].includes(toolName)) {\n    return 'gpu';\n  }\n  return 'unknown';\n}\n\nreturn cerberusResponse;"
+      },
+      "id": "c3d4e5f6-a7b8-9012-cd34-ef56ab789012",
+      "name": "Format Cerberus Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "X-Powered-By",
+                "value": "N8N-Cerberus-MCP"
+              }
+            ]
+          }
+        }
+      },
+      "id": "d4e5f6a7-b8c9-0123-de45-fa67bc890123",
+      "name": "Respond to Cerberus",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Error Handler for Cerberus Integration\n// Handle any errors that occur during tool execution\n\nconst error = $input.first().json.error || {};\nconst metadata = $('Parse Cerberus Request').first()?.json?.metadata || {};\n\nconst errorResponse = {\n  success: false,\n  tool_name: metadata.originalTool || 'unknown',\n  session_id: metadata.sessionId || 'unknown',\n  user_id: metadata.userId || 'unknown',\n  request_id: metadata.requestId || 'unknown',\n  timestamp: new Date().toISOString(),\n  error: {\n    code: 'EXECUTION_ERROR',\n    message: error.message || 'An error occurred during tool execution',\n    details: {\n      original_error: error,\n      stack_trace: error.stack,\n      mcp_server: 'https://mcp-server-always-on.onrender.com'\n    }\n  },\n  metrics: {\n    mcp_server_status: 'error',\n    error_category: getErrorCategory(error)\n  }\n};\n\nfunction getErrorCategory(err) {\n  const message = (err.message || '').toLowerCase();\n  \n  if (message.includes('timeout') || message.includes('network')) {\n    return 'network';\n  }\n  if (message.includes('authentication') || message.includes('unauthorized')) {\n    return 'auth';\n  }\n  if (message.includes('validation') || message.includes('invalid')) {\n    return 'validation';\n  }\n  if (message.includes('tool') || message.includes('method')) {\n    return 'tool';\n  }\n  \n  return 'unknown';\n}\n\nreturn errorResponse;"
+      },
+      "id": "e5f6a7b8-c9d0-1234-ef56-ab78cd901234",
+      "name": "Handle Error",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 500]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          },
+          "responseCode": 500
+        }
+      },
+      "id": "f6a7b8c9-d0e1-2345-fa67-bc89de012345",
+      "name": "Respond Error to Cerberus",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1120, 500]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse Cerberus Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Cerberus Request": {
+      "main": [
+        [
+          {
+            "node": "Call MCP Server",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call MCP Server": {
+      "main": [
+        [
+          {
+            "node": "Format Cerberus Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Cerberus Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Cerberus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle Error": {
+      "main": [
+        [
+          {
+            "node": "Respond Error to Cerberus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "id": "cerberus",
+      "name": "Cerberus"
+    },
+    {
+      "id": "mcp",
+      "name": "MCP"
+    },
+    {
+      "id": "tools",
+      "name": "Tools"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2025-01-21T00:00:00.000Z",
+  "versionId": "1"
+}

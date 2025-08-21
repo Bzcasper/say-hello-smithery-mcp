@@ -1,0 +1,1583 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Comprehensive MCP Server API",
+    "description": "Production-ready API for multi-platform integration including n8n workflow automation, PythonAnywhere hosting, Render cloud deployment, browser automation with GPU acceleration, and Modal Labs GPU processing.",
+    "version": "2.0.0",
+    "contact": {
+      "name": "MCP Server Support",
+      "email": "support@aitoolpool.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://mcp-server-always-on.onrender.com",
+      "description": "Production server on Render"
+    },
+    {
+      "url": "https://17b5628c.ngrok.smithery.ai",
+      "description": "Development server on Smithery"
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    },
+    {
+      "BearerAuth": []
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check endpoint",
+        "description": "Check the health status of all integrated services",
+        "operationId": "getHealthStatus",
+        "responses": {
+          "200": {
+            "description": "Service health status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/n8n/search-nodes": {
+      "post": {
+        "summary": "Search n8n workflow nodes",
+        "description": "Search for n8n workflow nodes by name, description, or category",
+        "operationId": "searchN8nNodes",
+        "tags": ["n8n"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["query"],
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query for nodes",
+                    "example": "HTTP"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "Maximum number of results",
+                    "default": 10,
+                    "minimum": 1,
+                    "maximum": 100
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeSearchResults"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/n8n/node/{nodeName}": {
+      "get": {
+        "summary": "Get n8n node details",
+        "description": "Get detailed information about a specific n8n node",
+        "operationId": "getN8nNodeInfo",
+        "tags": ["n8n"],
+        "parameters": [
+          {
+            "name": "nodeName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Name of the node to get info for",
+            "example": "HTTP Request"
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Node version (optional)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Node details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/n8n/workflows": {
+      "post": {
+        "summary": "Create n8n workflow",
+        "description": "Create a new n8n workflow with specified nodes and configuration",
+        "operationId": "createN8nWorkflow",
+        "tags": ["n8n"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWorkflowRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Workflow created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/n8n/workflows/{workflowId}/validate": {
+      "post": {
+        "summary": "Validate n8n workflow",
+        "description": "Validate a complete n8n workflow configuration",
+        "operationId": "validateN8nWorkflow",
+        "tags": ["n8n"],
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Workflow ID to validate"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateWorkflowRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validation results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/n8n/workflows/{workflowId}/activate": {
+      "post": {
+        "summary": "Activate n8n workflow",
+        "description": "Activate an n8n workflow to start processing",
+        "operationId": "activateN8nWorkflow",
+        "tags": ["n8n"],
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Workflow ID to activate"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "triggerTest": {
+                    "type": "boolean",
+                    "description": "Run a test trigger",
+                    "default": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Workflow activated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pythonanywhere/files": {
+      "get": {
+        "summary": "List PythonAnywhere files",
+        "description": "List files and directories in a PythonAnywhere path",
+        "operationId": "listPythonAnywhereFiles",
+        "tags": ["pythonanywhere"],
+        "parameters": [
+          {
+            "name": "path",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "/home/username/"
+            },
+            "description": "Directory path to list"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File listing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pythonanywhere/webapps": {
+      "post": {
+        "summary": "Create PythonAnywhere web app",
+        "description": "Create a new web application on PythonAnywhere",
+        "operationId": "createPythonAnywhereWebApp",
+        "tags": ["pythonanywhere"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWebAppRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Web app created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebAppResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pythonanywhere/deploy": {
+      "post": {
+        "summary": "Deploy code to PythonAnywhere",
+        "description": "Deploy code to PythonAnywhere web application",
+        "operationId": "deployPythonAnywhereCode",
+        "tags": ["pythonanywhere"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeployCodeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Code deployed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeployResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pythonanywhere/console": {
+      "post": {
+        "summary": "Run PythonAnywhere console command",
+        "description": "Execute a command in PythonAnywhere console",
+        "operationId": "runPythonAnywhereConsole",
+        "tags": ["pythonanywhere"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsoleCommandRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command executed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsoleResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/render/services": {
+      "get": {
+        "summary": "List Render services",
+        "description": "List all Render services for the account",
+        "operationId": "listRenderServices",
+        "tags": ["render"],
+        "parameters": [
+          {
+            "name": "filter",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter services by name or type"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Service listing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RenderServicesResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Deploy Render service",
+        "description": "Deploy a service to Render from GitHub repository",
+        "operationId": "deployRenderService",
+        "tags": ["render"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeployServiceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Service deployment initiated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceDeploymentResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/render/services/{serviceId}/status": {
+      "get": {
+        "summary": "Get Render deployment status",
+        "description": "Check the deployment status of a Render service",
+        "operationId": "getRenderDeploymentStatus",
+        "tags": ["render"],
+        "parameters": [
+          {
+            "name": "serviceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Service ID to check"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deployment status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeploymentStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/browser/navigate": {
+      "post": {
+        "summary": "Navigate browser",
+        "description": "Navigate to a specific URL using AI-driven browser automation",
+        "operationId": "navigateBrowser",
+        "tags": ["browser"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NavigateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Navigation completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/browser/extract": {
+      "post": {
+        "summary": "Extract web data",
+        "description": "Extract specific data from a webpage using AI vision and automation",
+        "operationId": "extractWebData",
+        "tags": ["browser"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtractDataRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Data extraction completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtractionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/browser/automate": {
+      "post": {
+        "summary": "Complete browser automation task",
+        "description": "Complete a complex browser automation task using AI",
+        "operationId": "automateBrowserTask",
+        "tags": ["browser"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AutomateTaskRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Automation task completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AutomationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/browser/search": {
+      "post": {
+        "summary": "AI web search",
+        "description": "Perform intelligent web search and analysis",
+        "operationId": "searchWebAI",
+        "tags": ["browser"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebSearchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Search and analysis completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/modal/process": {
+      "post": {
+        "summary": "GPU data processing",
+        "description": "Process large datasets using GPU acceleration via Modal Labs",
+        "operationId": "processDataGPU",
+        "tags": ["modal"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProcessDataRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Data processing completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessingResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/modal/inference": {
+      "post": {
+        "summary": "AI inference on GPU",
+        "description": "Run AI model inference on GPU via Modal Labs",
+        "operationId": "runAIInferenceGPU",
+        "tags": ["modal"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InferenceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "AI inference completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InferenceResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workflows/integrated": {
+      "post": {
+        "summary": "Create integrated workflow",
+        "description": "Create a workflow that spans multiple platforms",
+        "operationId": "createIntegratedWorkflow",
+        "tags": ["integration"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntegratedWorkflowRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Integrated workflow created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntegratedWorkflowResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workflows/execute": {
+      "post": {
+        "summary": "Execute workflow chain",
+        "description": "Execute a complete workflow chain across all integrated platforms",
+        "operationId": "executeWorkflowChain",
+        "tags": ["integration"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowChainRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Workflow chain executed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowChainResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      },
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "HealthStatus": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["healthy", "degraded", "unhealthy"]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "string"
+          },
+          "services": {
+            "type": "object",
+            "properties": {
+              "n8n": {
+                "type": "boolean"
+              },
+              "pythonanywhere": {
+                "type": "boolean"
+              },
+              "render": {
+                "type": "boolean"
+              },
+              "browserUse": {
+                "type": "boolean"
+              },
+              "modal": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "NodeSearchResults": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "total": {
+            "type": "integer"
+          },
+          "nodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NodeSummary"
+            }
+          }
+        }
+      },
+      "NodeSummary": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "NodeInfo": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "properties": {
+            "type": "object"
+          },
+          "operations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CreateWorkflowRequest": {
+        "type": "object",
+        "required": ["name", "nodes"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Customer Support Automation"
+          },
+          "description": {
+            "type": "string",
+            "example": "Automated customer support workflow using Slack and email integration"
+          },
+          "nodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowNode"
+            }
+          },
+          "active": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "WorkflowNode": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "HTTP Request"
+          },
+          "position": {
+            "$ref": "#/components/schemas/NodePosition"
+          },
+          "parameters": {
+            "type": "object"
+          }
+        }
+      },
+      "NodePosition": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          }
+        }
+      },
+      "WorkflowResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive"]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "nodeCount": {
+            "type": "integer"
+          }
+        }
+      },
+      "ValidateWorkflowRequest": {
+        "type": "object",
+        "required": ["workflow"],
+        "properties": {
+          "workflow": {
+            "type": "object"
+          },
+          "profile": {
+            "type": "string",
+            "enum": ["minimal", "runtime", "ai-friendly", "strict"],
+            "default": "ai-friendly"
+          }
+        }
+      },
+      "ValidationResponse": {
+        "type": "object",
+        "properties": {
+          "valid": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "recommendations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ActivationResponse": {
+        "type": "object",
+        "properties": {
+          "workflowId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "error"]
+          },
+          "message": {
+            "type": "string"
+          },
+          "activatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "FileListResponse": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "total": {
+            "type": "integer"
+          }
+        }
+      },
+      "CreateWebAppRequest": {
+        "type": "object",
+        "required": ["domain"],
+        "properties": {
+          "domain": {
+            "type": "string",
+            "example": "myapp.pythonanywhere.com"
+          },
+          "pythonVersion": {
+            "type": "string",
+            "default": "python3.11",
+            "example": "python3.11"
+          },
+          "framework": {
+            "type": "string",
+            "default": "Flask",
+            "example": "Flask"
+          }
+        }
+      },
+      "WebAppResponse": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": "string"
+          },
+          "pythonVersion": {
+            "type": "string"
+          },
+          "framework": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "sourceCodePath": {
+            "type": "string"
+          }
+        }
+      },
+      "DeployCodeRequest": {
+        "type": "object",
+        "required": ["domain", "sourceCode", "filePath"],
+        "properties": {
+          "domain": {
+            "type": "string",
+            "example": "myapp.pythonanywhere.com"
+          },
+          "sourceCode": {
+            "type": "string",
+            "example": "from flask import Flask\napp = Flask(__name__)\n\n@app.route('/')\ndef hello():\n    return 'Hello World!'"
+          },
+          "filePath": {
+            "type": "string",
+            "example": "/home/username/myapp/app.py"
+          }
+        }
+      },
+      "DeployResponse": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": "string"
+          },
+          "filePath": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          },
+          "deployedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ConsoleCommandRequest": {
+        "type": "object",
+        "required": ["command"],
+        "properties": {
+          "command": {
+            "type": "string",
+            "example": "pip install flask"
+          },
+          "workingDir": {
+            "type": "string",
+            "example": "/home/username/myapp"
+          }
+        }
+      },
+      "ConsoleResponse": {
+        "type": "object",
+        "properties": {
+          "command": {
+            "type": "string"
+          },
+          "workingDir": {
+            "type": "string"
+          },
+          "output": {
+            "type": "string"
+          },
+          "exitCode": {
+            "type": "integer"
+          },
+          "executedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RenderServicesResponse": {
+        "type": "object",
+        "properties": {
+          "services": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RenderService"
+            }
+          },
+          "total": {
+            "type": "integer"
+          }
+        }
+      },
+      "RenderService": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["web_service", "background_worker", "cron_job"]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["running", "stopped", "deploying", "error"]
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "DeployServiceRequest": {
+        "type": "object",
+        "required": ["name", "repository"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "my-api-service"
+          },
+          "repository": {
+            "type": "string",
+            "example": "https://github.com/username/my-api"
+          },
+          "branch": {
+            "type": "string",
+            "default": "main",
+            "example": "main"
+          },
+          "serviceType": {
+            "type": "string",
+            "enum": ["web_service", "background_worker", "cron_job"],
+            "default": "web_service"
+          }
+        }
+      },
+      "ServiceDeploymentResponse": {
+        "type": "object",
+        "properties": {
+          "serviceId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "repository": {
+            "type": "string"
+          },
+          "branch": {
+            "type": "string"
+          },
+          "serviceType": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "DeploymentStatusResponse": {
+        "type": "object",
+        "properties": {
+          "serviceName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "health": {
+            "type": "string"
+          },
+          "lastDeploy": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "buildTime": {
+            "type": "string"
+          },
+          "memoryUsage": {
+            "type": "string"
+          },
+          "responseTime": {
+            "type": "string"
+          }
+        }
+      },
+      "NavigateRequest": {
+        "type": "object",
+        "required": ["url"],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://example.com"
+          },
+          "waitFor": {
+            "type": "string",
+            "example": "#main-content"
+          }
+        }
+      },
+      "BrowserResponse": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "loadTime": {
+            "type": "number"
+          }
+        }
+      },
+      "ExtractDataRequest": {
+        "type": "object",
+        "required": ["instruction"],
+        "properties": {
+          "instruction": {
+            "type": "string",
+            "example": "Extract all product prices and names from the page"
+          },
+          "useGPU": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "ExtractionResponse": {
+        "type": "object",
+        "properties": {
+          "instruction": {
+            "type": "string"
+          },
+          "extractedData": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "itemCount": {
+            "type": "integer"
+          },
+          "processingTime": {
+            "type": "number"
+          }
+        }
+      },
+      "AutomateTaskRequest": {
+        "type": "object",
+        "required": ["task"],
+        "properties": {
+          "task": {
+            "type": "string",
+            "example": "Fill out the contact form with my information and submit it"
+          },
+          "startingUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "useModal": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "AutomationResponse": {
+        "type": "object",
+        "properties": {
+          "task": {
+            "type": "string"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "WebSearchRequest": {
+        "type": "object",
+        "required": ["query"],
+        "properties": {
+          "query": {
+            "type": "string",
+            "example": "best cloud deployment platforms 2024"
+          },
+          "numResults": {
+            "type": "integer",
+            "default": 5,
+            "minimum": 1,
+            "maximum": 20
+          },
+          "analysisDepth": {
+            "type": "string",
+            "enum": ["basic", "detailed", "comprehensive"],
+            "default": "detailed"
+          }
+        }
+      },
+      "SearchResponse": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "resultsAnalyzed": {
+            "type": "integer"
+          },
+          "analysisDepth": {
+            "type": "string"
+          },
+          "findings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "ProcessDataRequest": {
+        "type": "object",
+        "required": ["dataList"],
+        "properties": {
+          "dataList": {
+            "type": "array",
+            "items": {},
+            "example": [{"id": 1, "value": "data1"}, {"id": 2, "value": "data2"}]
+          },
+          "operation": {
+            "type": "string",
+            "default": "analyze",
+            "example": "analyze"
+          },
+          "gpuType": {
+            "type": "string",
+            "enum": ["T4", "A10G", "A100"],
+            "default": "T4"
+          }
+        }
+      },
+      "ProcessingResponse": {
+        "type": "object",
+        "properties": {
+          "dataItems": {
+            "type": "integer"
+          },
+          "operation": {
+            "type": "string"
+          },
+          "gpuType": {
+            "type": "string"
+          },
+          "processingTime": {
+            "type": "number"
+          },
+          "speedup": {
+            "type": "string"
+          },
+          "results": {
+            "type": "object"
+          }
+        }
+      },
+      "InferenceRequest": {
+        "type": "object",
+        "required": ["inputData"],
+        "properties": {
+          "inputData": {
+            "type": "object",
+            "example": {"text": "analyze this content", "parameters": {"temperature": 0.7}}
+          },
+          "modelType": {
+            "type": "string",
+            "default": "general",
+            "example": "text-analysis"
+          },
+          "gpuType": {
+            "type": "string",
+            "enum": ["T4", "A10G", "A100"],
+            "default": "T4"
+          }
+        }
+      },
+      "InferenceResponse": {
+        "type": "object",
+        "properties": {
+          "modelType": {
+            "type": "string"
+          },
+          "gpuType": {
+            "type": "string"
+          },
+          "inputData": {
+            "type": "object"
+          },
+          "results": {
+            "type": "object"
+          },
+          "inferenceTime": {
+            "type": "number"
+          }
+        }
+      },
+      "IntegratedWorkflowRequest": {
+        "type": "object",
+        "required": ["workflowName", "platforms", "description"],
+        "properties": {
+          "workflowName": {
+            "type": "string",
+            "example": "Multi-Platform Data Pipeline"
+          },
+          "platforms": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["n8n", "pythonanywhere", "render", "browser", "modal"]
+            },
+            "example": ["n8n", "pythonanywhere", "render"]
+          },
+          "description": {
+            "type": "string",
+            "example": "Automated data processing pipeline across multiple platforms"
+          }
+        }
+      },
+      "IntegratedWorkflowResponse": {
+        "type": "object",
+        "properties": {
+          "workflowName": {
+            "type": "string"
+          },
+          "platforms": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": {
+            "type": "string"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "WorkflowChainRequest": {
+        "type": "object",
+        "required": ["workflowSteps"],
+        "properties": {
+          "workflowSteps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowStep"
+            }
+          },
+          "useGPU": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "WorkflowStep": {
+        "type": "object",
+        "required": ["platform", "action"],
+        "properties": {
+          "platform": {
+            "type": "string",
+            "example": "n8n"
+          },
+          "action": {
+            "type": "string",
+            "example": "create_workflow"
+          },
+          "parameters": {
+            "type": "object"
+          }
+        }
+      },
+      "WorkflowChainResponse": {
+        "type": "object",
+        "properties": {
+          "steps": {
+            "type": "integer"
+          },
+          "useGPU": {
+            "type": "boolean"
+          },
+          "executionResults": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "totalExecutionTime": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "n8n",
+      "description": "n8n workflow automation tools"
+    },
+    {
+      "name": "pythonanywhere",
+      "description": "PythonAnywhere hosting platform tools"
+    },
+    {
+      "name": "render",
+      "description": "Render cloud deployment tools"
+    },
+    {
+      "name": "browser",
+      "description": "AI-driven browser automation tools"
+    },
+    {
+      "name": "modal",
+      "description": "Modal Labs GPU processing tools"
+    },
+    {
+      "name": "integration",
+      "description": "Multi-platform integration workflows"
+    }
+  ]
+}

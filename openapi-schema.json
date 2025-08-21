@@ -1,0 +1,274 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "MCP Production Server API",
+    "description": "Always-on HTTP MCP server with integrated tools for N8N, PythonAnywhere, Render, Browser automation, and Modal GPU processing",
+    "version": "1.0.0",
+    "contact": {
+      "name": "MCP Production Team"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://mcp-server-always-on.onrender.com",
+      "description": "Production server on Render"
+    },
+    {
+      "url": "http://localhost:8181",
+      "description": "Local development server"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check endpoint",
+        "description": "Check the health status of the MCP server and all integrated services",
+        "responses": {
+          "200": {
+            "description": "Server is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mcp": {
+      "post": {
+        "summary": "MCP endpoint for tool execution",
+        "description": "Execute MCP tools including N8N workflows, PythonAnywhere operations, Render deployments, browser automation, and GPU processing",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MCPRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MCPResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Tool execution failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["healthy", "unhealthy"]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "string"
+          },
+          "services": {
+            "type": "object",
+            "properties": {
+              "n8n": {
+                "type": "boolean",
+                "description": "N8N API connectivity status"
+              },
+              "pythonanywhere": {
+                "type": "boolean",
+                "description": "PythonAnywhere API connectivity status"
+              },
+              "render": {
+                "type": "boolean",
+                "description": "Render API connectivity status"
+              },
+              "browserUse": {
+                "type": "boolean",
+                "description": "Browser automation service status"
+              },
+              "modal": {
+                "type": "boolean",
+                "description": "Modal GPU integration status"
+              }
+            }
+          }
+        },
+        "required": ["status", "timestamp", "version", "services"]
+      },
+      "MCPRequest": {
+        "type": "object",
+        "properties": {
+          "jsonrpc": {
+            "type": "string",
+            "enum": ["2.0"]
+          },
+          "id": {
+            "oneOf": [
+              {"type": "string"},
+              {"type": "number"}
+            ]
+          },
+          "method": {
+            "type": "string",
+            "enum": ["tools/list", "tools/call"]
+          },
+          "params": {
+            "oneOf": [
+              {"$ref": "#/components/schemas/ListToolsParams"},
+              {"$ref": "#/components/schemas/CallToolParams"}
+            ]
+          }
+        },
+        "required": ["jsonrpc", "id", "method"]
+      },
+      "ListToolsParams": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "CallToolParams": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "search_nodes", "get_node_info", "get_node_essentials", "validate_workflow", 
+              "create_workflow", "update_workflow", "n8n_validate_workflow", "get_workflow_templates",
+              "list_files", "read_file", "write_file", "delete_file", "create_webapp", 
+              "list_webapps", "reload_webapp", "get_webapp_info", "run_console_command",
+              "list_services", "get_service", "create_service", "update_service", 
+              "deploy_service", "get_deployments",
+              "navigate_to", "click_element", "fill_form", "extract_data", 
+              "take_screenshot", "search_web", "complete_task",
+              "gpu_data_processing", "ai_inference", "batch_processing"
+            ]
+          },
+          "arguments": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "required": ["name", "arguments"]
+      },
+      "MCPResponse": {
+        "type": "object",
+        "properties": {
+          "jsonrpc": {
+            "type": "string",
+            "enum": ["2.0"]
+          },
+          "id": {
+            "oneOf": [
+              {"type": "string"},
+              {"type": "number"}
+            ]
+          },
+          "result": {
+            "oneOf": [
+              {"$ref": "#/components/schemas/ToolListResult"},
+              {"$ref": "#/components/schemas/ToolCallResult"}
+            ]
+          }
+        },
+        "required": ["jsonrpc", "id", "result"]
+      },
+      "ToolListResult": {
+        "type": "object",
+        "properties": {
+          "tools": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Tool"
+            }
+          }
+        },
+        "required": ["tools"]
+      },
+      "Tool": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "type": {"type": "string"},
+              "properties": {"type": "object"},
+              "required": {
+                "type": "array",
+                "items": {"type": "string"}
+              }
+            }
+          }
+        },
+        "required": ["name", "description", "inputSchema"]
+      },
+      "ToolCallResult": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TextContent"
+            }
+          }
+        },
+        "required": ["content"]
+      },
+      "TextContent": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["text"]
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": ["type", "text"]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": ["error", "message"]
+      }
+    }
+  }
+}
