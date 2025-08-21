@@ -1,0 +1,76 @@
+{
+  "mcp_servers": {
+    "n8n-mcp": {
+      "description": "Complete n8n workflow automation platform integration",
+      "capabilities": [
+        "Node discovery and documentation",
+        "Workflow validation and configuration",
+        "API-based workflow management",
+        "Template and example generation",
+        "Expression syntax validation"
+      ],
+      "tools": [
+        "search_nodes",
+        "get_node_info",
+        "validate_node_config",
+        "create_workflow",
+        "update_workflow",
+        "validate_workflow"
+      ]
+    },
+    "pythonanywhere": {
+      "description": "PythonAnywhere hosting platform management",
+      "capabilities": [
+        "File system operations",
+        "Web application management",
+        "Console access and execution",
+        "Database management",
+        "Task scheduling"
+      ],
+      "tools": [
+        "list_files",
+        "upload_file",
+        "create_webapp",
+        "run_console_command",
+        "manage_databases"
+      ]
+    },
+    "render": {
+      "description": "Render cloud platform deployment and monitoring",
+      "capabilities": [
+        "Service deployment",
+        "Environment management",
+        "Build and deployment logs",
+        "Custom domains",
+        "Database management"
+      ],
+      "tools": [
+        "list_services",
+        "deploy_service",
+        "get_logs",
+        "manage_environment",
+        "configure_domains"
+      ]
+    }
+  },
+  "common_workflows": [
+    {
+      "name": "Deploy TypeScript App",
+      "steps": [
+        "Build TypeScript project locally",
+        "Upload to PythonAnywhere or deploy to Render",
+        "Configure environment variables",
+        "Set up custom domain if needed"
+      ]
+    },
+    {
+      "name": "n8n Workflow Development",
+      "steps": [
+        "Search available nodes",
+        "Validate node configurations",
+        "Create workflow structure",
+        "Test and deploy workflow"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "mcpServers": {
+    "n8n-mcp": {
+      "command": "npx",
+      "args": ["n8n-mcp"],
+      "env": {
+        "MCP_MODE": "stdio",
+        "LOG_LEVEL": "error",
+        "DISABLE_CONSOLE_OUTPUT": "true",
+        "N8N_API_URL": "https://n8n-render-2sul.onrender.com/api/v1",
+        "N8N_API_KEY": "ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnpkV2lpT2lJNU16VTVNMlEwT0MwM00yWmpMVFF3TnpndFlXSmhOQzFqTm1Zek5EZGpOamd6WVRRaUxDSnBjM01pT2lKdU9HNGlMQ0poZFdRaU9pSndkV0pzYVdNdFlYQnBJaXdpYVdGMElqb3hOelUxT0RBNU1UZzRMQ0psZEhBaU9qRTNOVGd6TkRBNE1EQjkueHNCUUFpajhEUkduRVlENkZBYVNvV2ZHVUZyRm4xS1BpaUxMczU3dl9PMA==",
+        "N8N_WEBHOOK_USERNAME": "bzcasper",
+        "N8N_WEBHOOK_PASSWORD": "80408040"
+      }
+    },
+    "pythonanywhere-mcp-server": {
+      "command": "uvx",
+      "args": ["pythonanywhere-mcp-server"],
+      "env": {
+        "API_TOKEN": "MmNkNzZkMzI1NTNiNGIxMDliODYwOGZlZjdiMDY0OTlhZDVhNzE0Mg==",
+        "LOGNAME": "bzcasper"
+      }
+    },
+    "render": {
+      "transport": "http",
+      "url": "https://mcp.render.com/mcp",
+      "headers": {
+        "Authorization": "Bearer cm5kX0JSZEpETXVLaU9lMHBUc0phaDFDbUkxZDhvRlQ="
+      }
+    }
+  }
+}
